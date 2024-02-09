@@ -23,9 +23,11 @@ public class PlayerMovement : MonoBehaviour
         Move = Input.GetAxis("Horizontal");
         rb.velocity = new Vector2(speed * Move, rb.velocity.y); //moving forward
 
-        if (Input.GetButtonDown("Jump") && isJumping == false)
+    
+        if ((Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.W)) && !isJumping)
         {
             rb.AddForce(new Vector2(rb.velocity.x, jump));
+            isJumping = true;
             Debug.Log("Jump");
         }
 

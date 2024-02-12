@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,19 +17,37 @@ public class PlayerCollect : MonoBehaviour
     public GameObject fireElementProjectilePrefab;
     public GameObject waterElementProjectilePrefab;
 
+    public GameObject platform;
+    public GameObject player;
+
+
+    private IEnumerator ReactivateElement(GameObject element, float delay)
+    {
+        // Deactivate the element
+        element.SetActive(false);
+
+        // Wait for the delay
+        yield return new WaitForSeconds(delay);
+
+        // Reactivate the element
+        element.SetActive(true);
+    }
+
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.CompareTag("FireElement"))
         {
             fireElementCount++;
             fireCountText.text = "Fire element count: " + fireElementCount;
-            Destroy(other.gameObject);
+
+            StartCoroutine(ReactivateElement(other.gameObject, 10f));
         }
-        else if (other.gameObject.CompareTag("WaterElement"))  
+        else if (other.gameObject.CompareTag("WaterElement"))
         {
             waterElementCount++;
             waterCountText.text = "Water element count: " + waterElementCount;
-            Destroy(other.gameObject);
+
+            StartCoroutine(ReactivateElement(other.gameObject, 10f));
         }
     }
 
@@ -57,20 +76,57 @@ public class PlayerCollect : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Z))
-        {
-            ShootElement("Fire"); 
-                                  
-        }
-        else if (Input.GetKeyDown(KeyCode.X))
-        {
-            ShootElement("Water");
 
+    public void TryScalePlatform()
+    {
+        Debug.Log("C button pressed - attempting to scale the existing platform.");
+
+        if (waterElementCount > 0 && platform != null)
+        {
+            waterElementCount--;
+
+            waterCountText.text = "Water element count: " + waterElementCount;
+
+            ScalePlatform(platform);
+        }
+        else
+        {
+            Debug.Log("Not enough elements to scale the platform or platform not found.");
         }
     }
 
+    private void ScalePlatform(GameObject platformToScale)
+    {
+        PlatformScaler scaler = platformToScale.GetComponent<PlatformScaler>();
+        if (scaler != null)
+        {
+            scaler.StartGrowing();
+        }
+        else
+        {
+            Debug.LogError("PlatformScaler component not found on the platform!");
+        }
+    }
+
+    void Update()
+    { 
+
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            ShootElement("Fire");
+
+        }
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            ShootElement("Water");
+        }
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            TryScalePlatform(); ;
+        }
+
+    }
 
 
 }

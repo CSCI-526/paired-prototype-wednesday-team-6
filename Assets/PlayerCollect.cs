@@ -17,10 +17,21 @@ public class PlayerCollect : MonoBehaviour
     public GameObject fireElementProjectilePrefab;
     public GameObject waterElementProjectilePrefab;
 
-    public GameObject platformPrefab;
+    public GameObject platform;
     public GameObject player;
 
 
+    private IEnumerator ReactivateElement(GameObject element, float delay)
+    {
+        // Deactivate the element
+        element.SetActive(false);
+
+        // Wait for the delay
+        yield return new WaitForSeconds(delay);
+
+        // Reactivate the element
+        element.SetActive(true);
+    }
 
     void OnTriggerEnter2D(Collider2D other)
     {
@@ -28,13 +39,15 @@ public class PlayerCollect : MonoBehaviour
         {
             fireElementCount++;
             fireCountText.text = "Fire element count: " + fireElementCount;
-            Destroy(other.gameObject);
+
+            StartCoroutine(ReactivateElement(other.gameObject, 10f));
         }
-        else if (other.gameObject.CompareTag("WaterElement"))  
+        else if (other.gameObject.CompareTag("WaterElement"))
         {
             waterElementCount++;
             waterCountText.text = "Water element count: " + waterElementCount;
-            Destroy(other.gameObject);
+
+            StartCoroutine(ReactivateElement(other.gameObject, 10f));
         }
     }
 
@@ -64,51 +77,36 @@ public class PlayerCollect : MonoBehaviour
     }
 
 
-    public void TryCreatePlatformWithoutShooting()
+    public void TryScalePlatform()
     {
-        Debug.Log("C button pressed - attempting to create platform without shooting.");
+        Debug.Log("C button pressed - attempting to scale the existing platform.");
 
-        if (fireElementCount > 0 && waterElementCount > 0)
+        if (waterElementCount > 0 && platform != null)
         {
-            fireElementCount--;
             waterElementCount--;
 
-            fireCountText.text = "Fire element count: " + fireElementCount;
             waterCountText.text = "Water element count: " + waterElementCount;
 
-            CreateAndRaisePlatform();
+            ScalePlatform(platform);
         }
         else
         {
-            Debug.Log("Not enough elements to create a platform.");
+            Debug.Log("Not enough elements to scale the platform or platform not found.");
         }
     }
 
-    private void CreateAndRaisePlatform()
+    private void ScalePlatform(GameObject platformToScale)
     {
-        Vector3 referencePosition = player.transform.position;
-        Vector3 referenceScale = player.transform.localScale;
-
-        Vector3 spawnPosition = new Vector3(
-            referencePosition.x, // X position is the same as the player
-            referencePosition.y + 2, // Y position is just above the player
-            referencePosition.z  // Z position should be the same as the player for a 2D game
-        );
-
-        GameObject platformInstance = Instantiate(platformPrefab, spawnPosition, Quaternion.identity);
-
-        PlatformScaler scaler = platformInstance.GetComponent<PlatformScaler>();
+        PlatformScaler scaler = platformToScale.GetComponent<PlatformScaler>();
         if (scaler != null)
         {
-            scaler.targetHeight = referenceScale.y / 2;
             scaler.StartGrowing();
         }
         else
         {
-            Debug.LogError("PlatformScaler component not found on the instantiated platform!");
+            Debug.LogError("PlatformScaler component not found on the platform!");
         }
     }
-
 
     void Update()
     { 
@@ -125,7 +123,7 @@ public class PlayerCollect : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.C))
         {
-            TryCreatePlatformWithoutShooting(); ;
+            TryScalePlatform(); ;
         }
 
     }

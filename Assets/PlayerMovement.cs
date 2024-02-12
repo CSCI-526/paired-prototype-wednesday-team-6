@@ -9,9 +9,8 @@ public class PlayerMovement : MonoBehaviour
     public float jump;
     private float Move;
     private Rigidbody2D rb;
-    public bool isJumping; //limit the player can jump only once
+    public bool isJumping;
 
-    // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();

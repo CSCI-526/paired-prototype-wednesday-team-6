@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class PlatformScaler : MonoBehaviour
 {
-    public float targetHeight = 6f;
-    public float growSpeed = 0.5f;
-    private bool isGrowing = false; // Initially not growing
+    public float targetHeight = 15f;
+    public float growSpeed = 4f;
+    private bool isGrowing = false; 
 
     void Start()
     {
@@ -15,6 +15,11 @@ public class PlatformScaler : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            StartGrowing();
+        }
+
         if (isGrowing)
         {
             float newHeight = Mathf.MoveTowards(transform.localScale.y, targetHeight, growSpeed * Time.deltaTime);
@@ -22,18 +27,12 @@ public class PlatformScaler : MonoBehaviour
 
             if (transform.localScale.y >= targetHeight)
             {
-                isGrowing = false; 
+                isGrowing = false;
             }
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D other)
-    {
-        if (other.gameObject.CompareTag("Player"))
-        {
-            StartGrowing();
-        }
-    }
+
 
     public void StartGrowing()
     {

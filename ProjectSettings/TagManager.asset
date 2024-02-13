@@ -11,6 +11,7 @@ TagManager:
   - WaterElementProjectile
   - WaterMonster
   - FireMonster
+  - MovingPlatform
   layers:
   - Default
   - TransparentFX
